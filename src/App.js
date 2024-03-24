@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { decrementAction, incrementAction, resetAction } from './redux/actions';
 import { useEffect } from 'react';
 import axios from 'axios';
-import { addNewProduct, deleteProduct, getProductAction } from './redux/products/action';
+import { addNewProduct, deleteProduct, fetchProducts, getProductAction, updateProduct } from './redux/products/action';
 
 function App() {
  const{profile,ticket,productListing}= useSelector(state=>state)
@@ -22,15 +22,9 @@ function App() {
 //  console.log(reduxStore)
 
 useEffect(()=>{
-   fetchData()
+   dispatch(fetchProducts())
 },[])
-  async function fetchData(){
- const result= await axios.get("https://dummyjson.com/products")
 
-dispatch(getProductAction(result.data.products))
-
- console.log(result)
-  }
 
   const addNew=()=>{
     const newProduct={
@@ -55,30 +49,13 @@ dispatch(getProductAction(result.data.products))
     dispatch(addNewProduct(newProduct))
   }
 
-  const deleteThisProduct=()=>{
-    const delete_a_Product={
-      "id": 2,
-      "title": "iPhone X",
-      "description": "SIM-Free, Model A19211 6.5-inch Super Retina HD display with OLED technology A12 Bionic chip with ...",
-      "price": 899,
-      "discountPercentage": 17.94,
-      "rating": 4.44,
-      "stock": 34,
-      "brand": "Apple",
-      "category": "smartphones",
-      "thumbnail": "https://cdn.dummyjson.com/product-images/2/thumbnail.jpg",
-      "images": [
-          "https://cdn.dummyjson.com/product-images/2/1.jpg",
-          "https://cdn.dummyjson.com/product-images/2/2.jpg",
-          "https://cdn.dummyjson.com/product-images/2/3.jpg",
-          "https://cdn.dummyjson.com/product-images/2/thumbnail.jpg"
-      ]
-    }
-    dispatch(deleteProduct(delete_a_Product))
+  const deleteThisProduct=(id)=>{
+    dispatch(deleteProduct(id))
   }
 
-
- 
+  const updateProductAction=(id)=>{
+  dispatch(updateProduct(id)  )
+  }
 
 
 return (
@@ -91,10 +68,19 @@ return (
        <button onClick={handleDecrement}>Decrement counter</button>
        <button onClick={handleReset}>Reset counter</button> 
        <button onClick={addNew}>ADD NEW PRODUCT</button>
-       <button onClick={deleteThisProduct}>DELETE A PRODUCT</button>
+      
        {
-        productListing.products.length>0 &&
-        productListing.products.map(eachObject=><h3>{eachObject.title}</h3>)
+        
+        productListing.loader?
+        <h3>Please wait products loading....</h3>
+        :
+        productListing.products.map(eachObject=>
+        <>
+        <h3>{eachObject.title}</h3>
+        <button onClick={()=>deleteThisProduct(eachObject.id)}>Delete</button> 
+        <button onClick={()=>updateProductAction(eachObject.id)}>Update</button> 
+        </>
+        )
        }
 
       </header>
